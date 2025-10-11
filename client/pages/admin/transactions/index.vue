@@ -12,6 +12,7 @@ import AlertButton from '#client/components/AlertButton.vue'
 import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
 import * as schemas from '#ledger/shared/validators/index.ts'
 import Account from '#ledger/shared/entities/account.entity.ts'
+import Transaction from '#ledger/shared/entities/transaction.entity.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 
@@ -20,7 +21,7 @@ const loading = ref(false)
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 
-const columns = defineColumns<Account>([
+const columns = defineColumns<Transaction>([
     {
         id: 'id',
         label: 'ID',
@@ -28,31 +29,36 @@ const columns = defineColumns<Account>([
         width: 50,
     },
     {
-        id: 'name',
-        label: $t('Name'),
-        field: 'name',
+        id: 'debit_account',
+        label: $t('Debit Account'),
+        field: 'debit_account_name',
     },
     {
-        id: 'parent',
-        label: $t('Parent'),
-        field: row => row.parent_name || '-',
+        id: 'credit_account',
+        label: $t('Credit Account'),
+        field: 'credit_account_name',
     },
     {
-        id: 'type',
-        label: $t('Type'),
-        field: row => row.typeLabel,
+        id: 'amount',
+        label: $t('Amount'),
+        field: 'debit_amount',
     },
     { id: 'actions' }
 ])
 
 const fields = defineFormFields({
-    name: {
-        component: 'text-field',
-        label: $t('Name'),
-    },
-    parent_id: {
+    debit_account_id: {
         component: 'autocomplete',
-        label: $t('Parent'),
+        label: $t('Debit Account'),
+        fetch: '/api/ledger/accounts?limit=5',
+        fetchOption: (o: any) => $fetch(`/api/ledger/accounts/${o}`),
+        labelKey: 'name',
+        valueKey: 'id',
+        clearable: true,
+    },
+    credit_account_id: {
+        component: 'autocomplete',
+        label: $t('Credit Account'),
         fetch: '/api/ledger/accounts?limit=5',
         fetchOption: (o: any) => $fetch(`/api/ledger/accounts/${o}`),
         labelKey: 'name',
@@ -63,10 +69,12 @@ const fields = defineFormFields({
         component: 'text-field',
         label: $t('Description'),
     },
-    type: {
-        component: 'select',
-        label: $t('Type'),
-        options: Account.TYPES,
+    amount: {
+        component: 'text-field',
+        label: $t('Amount'),
+        type: 'number',
+        step: 1,
+        placeholder: '1000',
     },
 })
 
@@ -82,7 +90,7 @@ function reset() {
 async function destroy(id: Account['id']) {
     deletingItems.value.push(id)
 
-    const [error] = await $fetch.try(`/api/ledger/accounts/${id}`, { method: 'DELETE', })
+    const [error] = await $fetch.try(`/api/ledger/transactions/${id}`, { method: 'DELETE', })
 
     if (error) {
         toast.error($t('Failed to delete.'))
@@ -102,8 +110,8 @@ watch(page, load, { immediate: true })
     <AppLayout>
         <div class="flex">
             <div class="mb-4 flex-1">
-                <PageTitle>{{ $t('Accounts') }}</PageTitle>
-                <PageSubtitle>{{ $t('Manage your ledger accounts.') }}</PageSubtitle>
+                <PageTitle>{{ $t('Transactions') }}</PageTitle>
+                <PageSubtitle>{{ $t('Manage your ledger transactions.') }}</PageSubtitle>
             </div>
 
             <div class="flex items-center gap-2">
@@ -119,10 +127,10 @@ watch(page, load, { immediate: true })
                     />
                 </Button>
                 <DialogForm 
-                    fetch="/api/ledger/accounts"
-                    :title="$t('Add new account')"
-                    :description="$t('Fill in the details below to add a new account')"
-                    :schema="schemas.account.create"
+                    fetch="/api/ledger/transactions"
+                    :title="$t('Add new transaction')"
+                    :description="$t('Fill in the details below to add a new transaction')"
+                    :schema="schemas.transaction.create"
                     :fields="fields"
                     @submit="load"
                 >
@@ -136,19 +144,19 @@ watch(page, load, { immediate: true })
         <DataTable
             ref="tableRef"
             v-model:loading="loading"
-            fetch="/api/ledger/accounts"
-            :serialize="row => Account.from(row)"
+            fetch="/api/ledger/transactions"
+            :serialize="row => Transaction.from(row)"
             :columns="columns"
         >
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <DialogForm 
-                        :title="$t('Edit account')"
-                        :description="$t('Update the details of the account')"
-                        :fetch="`/api/ledger/accounts/${row.id}`"
+                        :title="$t('Edit an entry')"
+                        :description="$t('Update the details of the entry')"
+                        :fetch="`/api/ledger/transactions/${row.id}`"
                         :method="'PUT'"
                         :values="row"
-                        :schema="schemas.account.update"
+                        :schema="schemas.entry.update"
                         :fields="fields"
                         @submit="load"
                     >

@@ -12,6 +12,7 @@ import AlertButton from '#client/components/AlertButton.vue'
 import DialogForm, { defineFormFields } from '#client/components/DialogForm.vue'
 import * as schemas from '#ledger/shared/validators/index.ts'
 import Account from '#ledger/shared/entities/account.entity.ts'
+import Entry from '#ledger/shared/entities/entry.entity.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
 
@@ -20,7 +21,7 @@ const loading = ref(false)
 const tableRef = ref<ComponentExposed<typeof DataTable>>()
 const deletingItems = ref<number[]>([])
 
-const columns = defineColumns<Account>([
+const columns = defineColumns<Entry>([
     {
         id: 'id',
         label: 'ID',
@@ -28,14 +29,8 @@ const columns = defineColumns<Account>([
         width: 50,
     },
     {
-        id: 'name',
-        label: $t('Name'),
-        field: 'name',
-    },
-    {
-        id: 'parent',
-        label: $t('Parent'),
-        field: row => row.parent_name || '-',
+        id: 'account',
+        label: $t('Account'),
     },
     {
         id: 'type',
@@ -46,13 +41,9 @@ const columns = defineColumns<Account>([
 ])
 
 const fields = defineFormFields({
-    name: {
-        component: 'text-field',
-        label: $t('Name'),
-    },
-    parent_id: {
+    account_id: {
         component: 'autocomplete',
-        label: $t('Parent'),
+        label: $t('Account'),
         fetch: '/api/ledger/accounts?limit=5',
         fetchOption: (o: any) => $fetch(`/api/ledger/accounts/${o}`),
         labelKey: 'name',
@@ -66,7 +57,14 @@ const fields = defineFormFields({
     type: {
         component: 'select',
         label: $t('Type'),
-        options: Account.TYPES,
+        options: Entry.TYPES,
+    },
+    amount: {
+        component: 'text-field',
+        label: $t('Amount'),
+        min: 0,
+        step: 0.01,
+        type: 'number',
     },
 })
 
@@ -82,7 +80,7 @@ function reset() {
 async function destroy(id: Account['id']) {
     deletingItems.value.push(id)
 
-    const [error] = await $fetch.try(`/api/ledger/accounts/${id}`, { method: 'DELETE', })
+    const [error] = await $fetch.try(`/api/ledger/entries/${id}`, { method: 'DELETE', })
 
     if (error) {
         toast.error($t('Failed to delete.'))
@@ -102,8 +100,8 @@ watch(page, load, { immediate: true })
     <AppLayout>
         <div class="flex">
             <div class="mb-4 flex-1">
-                <PageTitle>{{ $t('Accounts') }}</PageTitle>
-                <PageSubtitle>{{ $t('Manage your ledger accounts.') }}</PageSubtitle>
+                <PageTitle>{{ $t('Entries') }}</PageTitle>
+                <PageSubtitle>{{ $t('Manage your ledger entries.') }}</PageSubtitle>
             </div>
 
             <div class="flex items-center gap-2">
@@ -119,10 +117,10 @@ watch(page, load, { immediate: true })
                     />
                 </Button>
                 <DialogForm 
-                    fetch="/api/ledger/accounts"
-                    :title="$t('Add new account')"
-                    :description="$t('Fill in the details below to add a new account')"
-                    :schema="schemas.account.create"
+                    fetch="/api/ledger/entries"
+                    :title="$t('Add new entry')"
+                    :description="$t('Fill in the details below to add a new entry')"
+                    :schema="schemas.entry.create"
                     :fields="fields"
                     @submit="load"
                 >
@@ -136,19 +134,19 @@ watch(page, load, { immediate: true })
         <DataTable
             ref="tableRef"
             v-model:loading="loading"
-            fetch="/api/ledger/accounts"
-            :serialize="row => Account.from(row)"
+            fetch="/api/ledger/entries"
+            :serialize="row => Entry.from(row)"
             :columns="columns"
         >
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <DialogForm 
-                        :title="$t('Edit account')"
-                        :description="$t('Update the details of the account')"
-                        :fetch="`/api/ledger/accounts/${row.id}`"
+                        :title="$t('Edit an entry')"
+                        :description="$t('Update the details of the entry')"
+                        :fetch="`/api/ledger/entries/${row.id}`"
                         :method="'PUT'"
                         :values="row"
-                        :schema="schemas.account.update"
+                        :schema="schemas.entry.update"
                         :fields="fields"
                         @submit="load"
                     >

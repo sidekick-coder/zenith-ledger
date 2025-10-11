@@ -19,11 +19,28 @@ export default defineClientSetup(({ menu, router }) => {
         })
         
     })
+
     menu.add({
         id: 'accounts',
         label: 'Accounts',
         icon: 'BookType',
         to: adminRoute('/accounts'),
+        group: $t('Ledger')
+    })
+    
+    menu.add({
+        id: 'entries',
+        label: $t('Entries'),
+        icon: 'ArrowLeftRight',
+        to: adminRoute('/entries'),
+        group: $t('Ledger')
+    })
+    
+    menu.add({
+        id: 'transactions',
+        label: $t('Transactions'),
+        icon: 'ArrowLeftRight',
+        to: adminRoute('/transactions'),
         group: $t('Ledger')
     })
 })
