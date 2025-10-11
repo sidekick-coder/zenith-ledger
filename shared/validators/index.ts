@@ -1,9 +1,9 @@
-import * as account from './account.validator.ts'
-import { schema as pagination } from '#shared/validators/pagination.validator.ts'
-import * as query from '#shared/validators/query.validator.ts'
-
-export default {
-    account,
-    pagination,
-    query
-}
+export * as pagination from '#shared/validators/pagination.validator.ts'
+export * as permission from '#shared/validators/permission.validator.ts'
+export * as permissionAssignment from '#shared/validators/permissionAssignment.validator.ts'
+export * as query from '#shared/validators/query.validator.ts'
+export * as role from '#shared/validators/role.validator.ts'
+export * as settingSite from '#shared/validators/settingSite.validator.ts'
+export * as user from '#shared/validators/user.validator.ts'
+export * as connection from '#shared/validators/connection.validator.ts'
+export * as account from './account.validator.ts'

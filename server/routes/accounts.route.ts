@@ -1,6 +1,6 @@
 import rootRouter from '#server/facades/router.facade.ts'
 import validator from '#shared/services/validator.service.ts'
-import schemas from '#ledger/shared/validators/index.ts'
+import * as schemas from '#ledger/shared/validators/index.ts'
 import { undeleted } from '#server/queries/index.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import Account from '#ledger/server/entities/account.entity.ts'
@@ -12,7 +12,7 @@ const router = rootRouter.prefix('/api/ledger/accounts')
 router.get('/', async ({ query, acl }) => {
     acl.authorize('read', 'Account')
 
-    const payload = validator.validate(query, schemas.pagination)
+    const payload = validator.validate(query, schemas.pagination.schema)
 
     const pagination = await Account.paginate({
         page: payload.page,
