@@ -4,6 +4,9 @@ import * as schemas from '#ledger/shared/validators/index.ts'
 import { undeleted } from '#server/queries/index.ts'
 import authMiddleware from '#server/middlewares/auth.middleware.ts'
 import Account from '#ledger/server/entities/account.entity.ts'
+import db from '#server/facades/db.facade.ts'
+import BaseException from '#server/exceptions/base.ts'
+import { $t } from '#shared/lang.ts'
 
 const router = rootRouter.prefix('/api/ledger/accounts')
     .use(authMiddleware)
@@ -17,8 +20,14 @@ router.get('/', async ({ query, acl }) => {
     const pagination = await Account.paginate({
         page: payload.page,
         limit: payload.limit,
-        query: q => q.selectAll()
-            .where(undeleted)
+        query: () => db.selectFrom('ledger__accounts as a')
+            .selectAll('a')
+            .where(undeleted.column('a.deleted_at'))
+            .leftJoin('ledger__accounts as p', 'a.parent_id', 'p.id')
+            .select([
+                'p.name as parent_name',
+                'p.type as parent_type'
+            ])
             .orderBy('created_at', 'desc')
     })
 
@@ -75,6 +84,10 @@ router.put('/:id', async ({ params, body, acl }) => {
     })
 
     acl.authorize('update', account)
+
+    if (account.id === payload.parent_id) {
+        throw new BaseException($t('An account cannot be its own parent.'))
+    }
 
     // Validate parent account exists if parent_id is provided
     if (payload.parent_id) {

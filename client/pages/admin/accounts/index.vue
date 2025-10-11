@@ -34,6 +34,11 @@ const columns = defineColumns<Account>([
         field: 'name',
     },
     {
+        id: 'parent',
+        label: $t('Parent'),
+        field: row => row.parent_name || '-',
+    },
+    {
         id: 'type',
         label: $t('Type'),
         field: row => row.typeLabel,
@@ -43,19 +48,25 @@ const columns = defineColumns<Account>([
 
 const fields = defineFormFields({
     name: {
-        name: 'name',
         component: 'text-field',
         label: $t('Name'),
+    },
+    parent_id: {
+        component: 'autocomplete',
+        label: $t('Parent'),
+        fetch: '/api/ledger/accounts?limit=5',
+        fetchOption: (o: any) => $fetch(`/api/ledger/accounts/${o}`),
+        labelKey: 'name',
+        valueKey: 'id',
+        clearable: true,
     },
     description: {
         component: 'text-field',
         label: $t('Description'),
-        name: 'description',
     },
     type: {
         component: 'select',
         label: $t('Type'),
-        name: 'type',
         options: Account.TYPES,
     },
 })
@@ -110,6 +121,8 @@ watch(page, load, { immediate: true })
                 </Button>
                 <DialogForm 
                     fetch="/api/ledger/accounts"
+                    :title="$t('Add new account')"
+                    :description="$t('Fill in the details below to add a new account')"
                     :schema="schemas.account.create"
                     :fields="fields"
                     @submit="load"
@@ -131,8 +144,10 @@ watch(page, load, { immediate: true })
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <DialogForm 
+                        :title="$t('Edit account')"
+                        :description="$t('Update the details of the account')"
                         :fetch="`/api/ledger/accounts/${row.id}`"
-                        method="PUT"
+                        :method="'PUT'"
                         :values="row"
                         :schema="schemas.account.update"
                         :fields="fields"

@@ -32,11 +32,15 @@ export default class Account extends compose(BaseEntity, Timestamp, SoftDelete) 
     public name: string
     public type: 'asset' | 'liability' | 'equity' | 'income' | 'expense'
     public description: string | null
+
+    // parent
     public parent_id: number | null
+    public parent_name?: Account['name'] | null
+    public parent_type?: Account['type'] | null
 
     public get typeLabel() {
         const type = TYPES.find(t => t.value === this.type)
-        
+
         return type ? type.label : this.type
     }
 }
