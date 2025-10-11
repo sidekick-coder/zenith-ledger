@@ -1,0 +1,5 @@
+node_modules
+root
+.volumes
+.env
+tmp

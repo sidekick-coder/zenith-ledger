@@ -1,0 +1,21 @@
+{
+  "name": "zenith-ledger",
+  "version": "1.0.0",
+  "imports": {
+    "#client/*": "./root/client/*",
+    "#server/*": "./root/server/*",
+    "#shared/*": "./root/shared/*",
+    "#config/*": "./root/config/*",
+    "#ledger/server/*": "./server/*",
+    "#ledger/shared/*": "./shared/*",
+    "#ledger/client/*": "./client/*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sidekick-coder/zenith-ledger.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sidekick-coder/zenith-ledger/issues"
+  },
+  "homepage": "https://github.com/sidekick-coder/zenith-ledger#readme"
+}
