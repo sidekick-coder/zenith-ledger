@@ -28,6 +28,21 @@ router.get('/', async ({ query, acl }) => {
                 'p.name as parent_name',
                 'p.type as parent_type'
             ])
+            .select((eb) => [
+                // correlated subquery for sum of debit
+                eb.selectFrom('ledger__entries as e')
+                    .select((sub) => sub.fn.sum<number>('e.amount').as('value'))
+                    .whereRef('e.account_id', '=', 'a.id')
+                    .where('e.type', '=', 'debit') // optional filter
+                    .as('debit_amount'),
+
+                // correlated subquery for sum of credit (optional)
+                eb.selectFrom('ledger__entries as e')
+                    .select((sub) => sub.fn.sum<number>('e.amount').as('value'))
+                    .whereRef('e.account_id', '=', 'a.id')
+                    .where('e.type', '=', 'credit')
+                    .as('credit_amount'),
+            ])
             .orderBy('created_at', 'desc')
     })
 

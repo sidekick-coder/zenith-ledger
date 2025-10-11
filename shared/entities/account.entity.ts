@@ -33,6 +33,14 @@ export default class Account extends compose(BaseEntity, Timestamp, SoftDelete) 
     public type: 'asset' | 'liability' | 'equity' | 'income' | 'expense'
     public description: string | null
 
+    // debit 
+    public debit_amount?: number
+    public debit_count?: number
+
+    // credit
+    public credit_amount?: number
+    public credit_count?: number
+
     // parent
     public parent_id: number | null
     public parent_name?: Account['name'] | null
@@ -42,5 +50,12 @@ export default class Account extends compose(BaseEntity, Timestamp, SoftDelete) 
         const type = TYPES.find(t => t.value === this.type)
 
         return type ? type.label : this.type
+    }
+
+    public get balance() {
+        const debit = this.debit_amount || 0
+        const credit = this.credit_amount || 0
+
+        return debit - credit
     }
 }

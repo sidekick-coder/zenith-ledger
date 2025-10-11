@@ -42,6 +42,11 @@ const columns = defineColumns<Account>([
         label: $t('Type'),
         field: row => row.typeLabel,
     },
+    {
+        id: 'balance',
+        label: $t('Balance'),
+        field: row => row.balance,
+    },
     { id: 'actions' }
 ])
 

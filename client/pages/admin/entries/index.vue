@@ -15,6 +15,7 @@ import Account from '#ledger/shared/entities/account.entity.ts'
 import Entry from '#ledger/shared/entities/entry.entity.ts'
 import PageTitle from '#client/components/PageTitle.vue'
 import PageSubtitle from '#client/components/PageSubtitle.vue'
+import Badge from '#client/components/ui/badge/Badge.vue'
 
 const page = ref(1)
 const loading = ref(false)
@@ -31,11 +32,17 @@ const columns = defineColumns<Entry>([
     {
         id: 'account',
         label: $t('Account'),
+        field: 'account_name'
     },
     {
         id: 'type',
         label: $t('Type'),
         field: row => row.typeLabel,
+    },
+    {
+        id: 'amount',
+        label: $t('Amount'),
+        field: row => row.amount,
     },
     { id: 'actions' }
 ])
@@ -138,6 +145,18 @@ watch(page, load, { immediate: true })
             :serialize="row => Entry.from(row)"
             :columns="columns"
         >
+            <template #row-type="{ row }">
+                <Badge
+                    :class="
+                        row.type === 'debit' ? 'bg-red-100 text-red-800' :
+                        row.type === 'credit' ? 'bg-green-100 text-green-800' :
+                        'bg-gray-100 text-gray-800'
+                    "
+                >
+                    {{ row.typeLabel }}
+                </Badge>
+            </template>
+
             <template #row-actions="{ row }">
                 <div class="flex items-center gap-2 justify-end">
                     <DialogForm 
