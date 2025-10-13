@@ -4,24 +4,12 @@ import { compose } from '#shared/utils/compose.ts'
 
 export const TYPES = [
     { 
-        label: $t('Asset'), 
-        value: 'asset' 
+        label: $t('Debit'), 
+        value: 'debit' 
     },
     { 
-        label: $t('Liability'),
-        value: 'liability' 
-    },
-    { 
-        label: $t('Equity'),
-        value: 'equity' 
-    },
-    { 
-        label: $t('Income'),
-        value: 'income' 
-    },
-    { 
-        label: $t('Expense'),
-        value: 'expense' 
+        label: $t('Credit'), 
+        value: 'credit' 
     },
 ]
 
