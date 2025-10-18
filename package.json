@@ -1,5 +1,6 @@
 {
   "name": "zenith-ledger",
+   "description": "Add ledger functionality to Zenith CMS",
   "version": "1.0.0",
   "imports": {
     "#client/*": "./root/client/*",
